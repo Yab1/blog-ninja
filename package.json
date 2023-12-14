@@ -1,5 +1,5 @@
 {
-  "name": "habesha-blogs",
+  "name": "blog-ninja",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ejs": "^3.1.9",
     "express": "^4.18.2",
     "lodash": "^4.17.21"
   }
