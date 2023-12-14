@@ -1,1 +1,1 @@
-# habesha-blogs
+# blog-ninja
