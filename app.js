@@ -20,38 +20,8 @@ const app = express();
 app.set("view engine", "ejs");
 
 app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-
-app.get("/add-blog", (req, res) => {
-  const blog = new Blog({
-    title: "How to defeat bowser",
-    snippet: "Lorem ipsum dolor sit amet consectetur",
-    body: "More about my new blog",
-  });
-
-  blog
-    .save()
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => console.log(err));
-});
-
-app.get("/all-blogs", (req, res) => {
-  Blog.find()
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => console.log(err));
-});
-
-app.get("/single-blogs", (req, res) => {
-  Blog.findById("657c3965cad82adb0cd98bcb")
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((err) => console.log(err));
-});
 
 app.get("/", (req, res) => {
   res.redirect("/blogs");
@@ -65,6 +35,34 @@ app.get("/blogs", async (req, res) => {
     res.render("index", { title: "All Blogs", blogs: result });
   } catch (err) {
     console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/blogs", async (req, res) => {
+  try {
+    const blog = new Blog(req.body);
+    await blog.save();
+    res.redirect("/blogs");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/blogs/create", (req, res) => {
+  res.render("create", { title: "Create a new blog" });
+});
+
+app.get("/blogs/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log(id);
+    const result = await Blog.findById(id);
+    res.render("details", { title: "Blog Details", blog: result });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error ");
   }
 });
 
@@ -72,8 +70,15 @@ app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
 });
 
-app.get("/blogs/create", (req, res) => {
-  res.render("create", { title: "Create a new blog" });
+app.delete("/blogs/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await Blog.findByIdAndDelete(id);
+    res.json({ redirect: "/blogs" });
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.use((req, res) => {
