@@ -6,15 +6,15 @@
 
     <div class="blogs content">
       <h2>All Blogs</h2>
-      <% if(blogs.length > 0){%> <% blogs.forEach(({title,snippet})=>{ %>
-      <h3 class="title"><%=title%></h3>
-      <p class="snippet"><%=snippet%></p>
+      <% if(blogs.length > 0){%> <% blogs.forEach(({_id,title,snippet})=>{ %>
+      <a class="single" href="/blogs/<%= _id %>">
+        <h3 class="title"><%=title%></h3>
+        <p class="snippet"><%=snippet%></p>
+      </a>
       <% }) %> <%}else{%>
       <p>There are no blogs to display...</p>
       <%}%>
     </div>
-
-    <%- include('./partials/footer.ejs')%>
   </body>
 </html>
 `
