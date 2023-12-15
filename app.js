@@ -1,11 +1,13 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
-const Blog = require("./models/blog");
+const blogRoutes = require("./routes/blogRoutes");
 require("dotenv").config();
 
+// express app
 const app = express();
 
+// connection to mongodb
 (async () => {
   try {
     await mongoose.connect(process.env.MONGO_DB_URI);
@@ -17,70 +19,27 @@ const app = express();
   }
 })();
 
+// register view engine
 app.set("view engine", "ejs");
 
+// middleware and static file
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
+// routes
 app.get("/", (req, res) => {
   res.redirect("/blogs");
-});
-
-app.get("/blogs", async (req, res) => {
-  try {
-    const result = await Blog.find().sort({ createdAt: -1 });
-    if (result.length === 0) throw new Error("No blogs found");
-
-    res.render("index", { title: "All Blogs", blogs: result });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-app.post("/blogs", async (req, res) => {
-  try {
-    const blog = new Blog(req.body);
-    await blog.save();
-    res.redirect("/blogs");
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-app.get("/blogs/create", (req, res) => {
-  res.render("create", { title: "Create a new blog" });
-});
-
-app.get("/blogs/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-    console.log(id);
-    const result = await Blog.findById(id);
-    res.render("details", { title: "Blog Details", blog: result });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error ");
-  }
 });
 
 app.get("/about", (req, res) => {
   res.render("about", { title: "About" });
 });
 
-app.delete("/blogs/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
+// blog routes
+app.use("/blogs", blogRoutes);
 
-    await Blog.findByIdAndDelete(id);
-    res.json({ redirect: "/blogs" });
-  } catch (err) {
-    console.log(err);
-  }
-});
-
+// 404 paage
 app.use((req, res) => {
   res.status(404).render("404", { title: "404" });
 });
