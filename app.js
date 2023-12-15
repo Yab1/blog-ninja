@@ -6,12 +6,16 @@ require("dotenv").config();
 
 const app = express();
 
-mongoose
-  .connect(process.env.MONGO_DB_URI)
-  .then((result) => {
+(async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_DB_URI);
+    console.log("Connected to MongoDB");
     app.listen(3000);
-  })
-  .catch((err) => console.log(err));
+    console.log("Server is running on port 3000");
+  } catch (err) {
+    console.error(err);
+  }
+})();
 
 app.set("view engine", "ejs");
 
